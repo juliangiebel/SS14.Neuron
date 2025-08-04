@@ -1,0 +1,6 @@
+@Neuron.Core_HostAddress = http://localhost:5094
+
+GET {{Neuron.Core_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
