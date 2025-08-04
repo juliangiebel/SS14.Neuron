@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Neuron.Core.Identity.Database;
 
-public class AppIdentityDbContext : IdentityDbContext
+public class AppIdentityDbContext(DbContextOptions<AppIdentityDbContext> options) : IdentityDbContext(options)
 {
     protected override void OnModelCreating(ModelBuilder builder)
     {

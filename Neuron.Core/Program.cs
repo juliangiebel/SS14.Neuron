@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc.Razor;
+using Neuron.Core;
 using Neuron.Core.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddControllers();
+builder.Services.AddRazorComponents();
 builder.AddNeuronCoreIdentity();
 
 var app = builder.Build();
@@ -22,6 +27,16 @@ var summaries = new[]
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
+
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapGet("/test", () => new RazorComponentResult<TestComponent>());
+
 app.MapGet("/weatherforecast", () =>
     {
         var forecast = Enumerable.Range(1, 5).Select(index =>
@@ -35,6 +50,10 @@ app.MapGet("/weatherforecast", () =>
         return forecast;
     })
     .WithName("GetWeatherForecast");
+
+
+app.MapControllers();
+app.MapDefaultControllerRoute();
 
 app.Run();
 
