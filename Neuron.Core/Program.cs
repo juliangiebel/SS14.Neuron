@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Neuron.Common.Components;
+using Neuron.Core.Components;
 using Neuron.Core.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,7 +8,16 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-builder.Services.AddControllers();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(5);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+builder.Services.AddAntiforgery();
+builder.Services.AddAuthorization();
 builder.Services.AddRazorComponents();
 builder.AddNeuronCoreIdentity();
 
@@ -25,13 +35,8 @@ var summaries = new[]
 };
 
 
-app.UseStaticFiles();
-
-app.UseRouting();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
+//app.UseCors();
+//app.UseForwardedHeaders();
 app.UseSecurityHeaders(policies =>
 {
     policies.AddDefaultSecurityHeaders();
@@ -44,6 +49,20 @@ app.UseSecurityHeaders(policies =>
     });
 });
 
+
+app.UseSession();
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAntiforgery();
+
+app.UseNeuronCoreIdentity();
+
+app.MapGet("/", () => new RazorComponentResult<Home>());
 app.MapGet("/test", () => new RazorComponentResult<TestComponent>());
 
 app.MapGet("/weatherforecast", () =>
@@ -59,10 +78,6 @@ app.MapGet("/weatherforecast", () =>
         return forecast;
     })
     .WithName("GetWeatherForecast");
-
-
-app.MapControllers();
-app.MapDefaultControllerRoute();
 
 app.Run();
 

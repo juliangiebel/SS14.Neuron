@@ -1,11 +1,17 @@
-﻿using System.Reflection;
+﻿using FluentValidation;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Neuron.Common.Types;
+using Neuron.Common.Validation;
 using Neuron.Core.Identity.Database;
-using OpenIddict.Abstractions;
-using OpenIddict.Client;
+using Neuron.Core.Identity.Endpoints;
+using Neuron.Core.Identity.Endpoints.Account;
+using Neuron.Core.Identity.Model;
+using Neuron.Core.Identity.Services;
 
 namespace Neuron.Core.Identity;
 
@@ -13,74 +19,28 @@ public static class CoreIdentityExtension
 {
     public static void AddNeuronCoreIdentity(this WebApplicationBuilder builder)
     {
-        // TODO: Adapt this further from the example code. Look at the example that passes certification
         builder.Services.AddDbContext<AppIdentityDbContext>(options =>
         {
-            options.UseSqlite($"Filename={Path.Combine(Path.GetTempPath(), "openiddict-velusia-server.sqlite3")}");
-            options.UseOpenIddict();
+            options.UseInMemoryDatabase(nameof(AppIdentityDbContext));
         });
         
-        builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+        builder.Services.AddIdentity<IdpUser, IdpRole>()
+            .AddSignInManager()
             .AddEntityFrameworkStores<AppIdentityDbContext>()
             .AddDefaultTokenProviders();
 
-        builder.Services.AddOpenIddict()
-            .AddCore(options => options.UseEntityFrameworkCore().UseDbContext<AppIdentityDbContext>())
-            .AddClient(options =>
-            {
-                options.AllowAuthorizationCodeFlow();
+        builder.Services.AddSingleton<IEmailSender<IdpUser>, EmailSender>();
+        builder.Services.AddHostedService<TestDataSeeder>();
 
-                options.AddDevelopmentEncryptionCertificate()
-                    .AddDevelopmentSigningCertificate();
-
-                options.UseAspNetCore()
-                    .EnableStatusCodePagesIntegration()
-                    .EnableRedirectionEndpointPassthrough();
-
-                options.UseSystemNetHttp().SetProductInformation(Assembly.GetEntryAssembly()!);
-
-                options.AddRegistration(new OpenIddictClientRegistration
-                {
-                    Issuer = new Uri("http://changeme.test", UriKind.Absolute),
-
-                    ClientId = "changeme",
-                    ClientSecret = "changeme",
-                    RedirectUri = new Uri("changeme", UriKind.Relative),
-                });
-            })
-            .AddServer(options =>
-            {
-                options.SetAuthorizationEndpointUris("connect/authorize")
-                    .SetTokenEndpointUris("connect/token")
-                    .SetEndSessionEndpointUris("connect/endsession")
-                    .SetUserInfoEndpointUris("connect/userinfo");
-
-                options.RegisterScopes(OpenIddictConstants.Scopes.Email);
-
-                options.AllowAuthorizationCodeFlow();
-
-                // Register the signing and encryption credentials.
-                options.AddDevelopmentEncryptionCertificate()
-                    .AddDevelopmentSigningCertificate();
-
-                // Register the ASP.NET Core host and configure the ASP.NET Core-specific options.
-                options.UseAspNetCore()
-                    .EnableAuthorizationEndpointPassthrough()
-                    .EnableEndSessionEndpointPassthrough()
-                    .EnableTokenEndpointPassthrough()
-                    .EnableUserInfoEndpointPassthrough()
-                    .EnableStatusCodePagesIntegration();
-                
-            })
-            .AddValidation(options =>
-            {
-                options.UseLocalServer();
-                options.UseAspNetCore();
-            });
+        builder.Services.AddValidatorsFromAssemblyContaining<IdpUser>();
     }
 
     public static void UseNeuronCoreIdentity(this WebApplication app)
     {
+        app.MapGroup("/api/identity")
+            .MapIdentityApi<IdpUser>()
+            .WithTags("Identity API", "Neuron.Core.Identity");
         
+        app.MapNeuronCoreIdentityEndpoints();
     }
 }

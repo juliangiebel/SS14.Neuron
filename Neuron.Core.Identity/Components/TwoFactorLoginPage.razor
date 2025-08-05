@@ -1,0 +1,18 @@
+﻿@using Microsoft.AspNetCore.Authentication
+<LayoutView Layout="typeof(PageLayout)">
+    <h1>Login</h1>
+</LayoutView>
+
+@code
+{
+    [Parameter]
+    public bool RememberMe { get; set; }
+    
+    [Parameter]
+    public string ReturnUrl { get; set; } = null!;
+    
+    
+    [Parameter]
+    public string? Error { get; set; }
+
+}

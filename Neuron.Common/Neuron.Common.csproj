@@ -7,10 +7,15 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
       <PackageReference Include="JetBrains.Annotations" Version="2025.2.0" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="9.0.7" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="9.0.8" />
     </ItemGroup>
 
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+    
     <ItemGroup>
       <Content Update="Components\TestComponent.razor">
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>

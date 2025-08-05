@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Neuron.Core.Identity.Database;
+namespace Neuron.Core.OpenId.Database;
 
 public class OpenIdDbContext(DbContextOptions<OpenIdDbContext> options) : DbContext(options)
 {
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        builder.HasDefaultSchema("oidc");
+        builder.HasDefaultSchema("openid");
     }
 }
