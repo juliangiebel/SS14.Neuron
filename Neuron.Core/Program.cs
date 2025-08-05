@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc.Razor;
-using Neuron.Core;
+using Neuron.Common.Components;
 using Neuron.Core.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,8 +19,6 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
-
 var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -34,6 +31,18 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseSecurityHeaders(policies =>
+{
+    policies.AddDefaultSecurityHeaders();
+    policies.AddPermissionsPolicy(permissions =>
+    {
+        permissions.AddDefaultSecureDirectives();
+        permissions.AddIdentityCredentialsGet().Self();
+        permissions.AddPublickeyCredentialsCreate().Self();
+        permissions.AddPublickeyCredentialsGet().Self();
+    });
+});
 
 app.MapGet("/test", () => new RazorComponentResult<TestComponent>());
 

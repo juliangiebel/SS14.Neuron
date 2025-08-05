@@ -41,11 +41,11 @@ public static class CoreIdentityExtension
 
                 options.AddRegistration(new OpenIddictClientRegistration
                 {
-                    Issuer = new Uri("changeme", UriKind.Absolute),
+                    Issuer = new Uri("http://changeme.test", UriKind.Absolute),
 
                     ClientId = "changeme",
                     ClientSecret = "changeme",
-                    RedirectUri = new Uri("changeme", UriKind.Absolute),
+                    RedirectUri = new Uri("changeme", UriKind.Relative),
                 });
             })
             .AddServer(options =>

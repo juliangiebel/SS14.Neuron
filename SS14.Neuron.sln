@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neuron.Common", "Neuron.Com
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neuron.Core.Identity", "Neuron.Core.Identity\Neuron.Core.Identity.csproj", "{0326842C-267B-4C37-8472-6D41F55311EE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neuron.Common.Components", "Neuron.Common.Components\Neuron.Common.Components.csproj", "{3C77926C-CE4E-45F2-AE2B-36070AE17BD1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,5 +28,9 @@ Global
 		{0326842C-267B-4C37-8472-6D41F55311EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0326842C-267B-4C37-8472-6D41F55311EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0326842C-267B-4C37-8472-6D41F55311EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C77926C-CE4E-45F2-AE2B-36070AE17BD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C77926C-CE4E-45F2-AE2B-36070AE17BD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C77926C-CE4E-45F2-AE2B-36070AE17BD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C77926C-CE4E-45F2-AE2B-36070AE17BD1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
