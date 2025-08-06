@@ -1,18 +1,25 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
+
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.8" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.8" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.8" />
-        <PackageReference Include="OpenIddict.AspNetCore" Version="7.0.0" />
-        <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="7.0.0" />
+        <SupportedPlatform Include="browser"/>
     </ItemGroup>
-    
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.8"/>
+        <PackageReference Include="System.Linq.AsyncEnumerable" Version="10.0.0-preview.6.25358.103" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Neuron.Common.Components\Neuron.Common.Components.csproj" />
+      <ProjectReference Include="..\Neuron.Common\Neuron.Common.csproj" />
+      <ProjectReference Include="..\Neuron.OpenId\Neuron.OpenId.csproj" />
+    </ItemGroup>
+
 </Project>

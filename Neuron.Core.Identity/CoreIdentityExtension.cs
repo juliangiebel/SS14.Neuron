@@ -22,14 +22,14 @@ public static class CoreIdentityExtension
         });
         
         builder.Services.AddIdentity<IdpUser, IdpRole>()
-            .AddSignInManager()
+            .AddSignInManager<IdpSignInManager>()
             .AddEntityFrameworkStores<AppIdentityDbContext>()
             .AddDefaultTokenProviders();
 
         builder.Services.AddSingleton<IEmailSender<IdpUser>, EmailSender>();
         builder.Services.AddHostedService<TestDataSeeder>();
 
-        builder.Services.AddValidatorsFromAssemblyContaining<IdpUser>();
+        builder.Services.AddValidatorsFromAssemblyContaining<AppIdentityDbContext>();
     }
 
     public static void UseNeuronCoreIdentity(this WebApplication app)

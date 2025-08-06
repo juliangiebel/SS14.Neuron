@@ -15,6 +15,7 @@
       <ProjectReference Include="..\Neuron.Common.Components\Neuron.Common.Components.csproj" />
       <ProjectReference Include="..\Neuron.Common\Neuron.Common.csproj" />
       <ProjectReference Include="..\Neuron.Core.Identity\Neuron.Core.Identity.csproj" />
+      <ProjectReference Include="..\Neuron.Core.OpenId\Neuron.Core.OpenId.csproj" />
     </ItemGroup>
 
 </Project>

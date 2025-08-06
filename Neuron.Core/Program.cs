@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Neuron.Common.Components;
 using Neuron.Core.Components;
 using Neuron.Core.Identity;
+using Neuron.Core.OpenId;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,7 @@ builder.Services.AddAntiforgery();
 builder.Services.AddAuthorization();
 builder.Services.AddRazorComponents();
 builder.AddNeuronCoreIdentity();
+builder.AddNeuronCoreOpenId();
 
 var app = builder.Build();
 
@@ -61,27 +63,9 @@ app.UseRouting();
 app.UseAntiforgery();
 
 app.UseNeuronCoreIdentity();
+app.UseNeuronCoreOpenId();
 
 app.MapGet("/", () => new RazorComponentResult<Home>());
 app.MapGet("/test", () => new RazorComponentResult<TestComponent>());
 
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast");
-
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

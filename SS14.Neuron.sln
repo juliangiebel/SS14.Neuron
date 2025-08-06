@@ -10,7 +10,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neuron.Core.Identity", "Neu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neuron.Common.Components", "Neuron.Common.Components\Neuron.Common.Components.csproj", "{3C77926C-CE4E-45F2-AE2B-36070AE17BD1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neuron.Core.OpenId", "Neuron.Core.OpenId\Neuron.Core.OpenId.csproj", "{B493716C-6136-468D-85E8-89597504B2E6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neuron.OpenId", "Neuron.OpenId\Neuron.OpenId.csproj", "{B493716C-6136-468D-85E8-89597504B2E6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neuron.Core.OpenId", "Neuron.Core.OpenId\Neuron.Core.OpenId.csproj", "{82C75395-5F24-44A2-8288-5CB9FA766091}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,5 +40,9 @@ Global
 		{B493716C-6136-468D-85E8-89597504B2E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B493716C-6136-468D-85E8-89597504B2E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B493716C-6136-468D-85E8-89597504B2E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82C75395-5F24-44A2-8288-5CB9FA766091}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82C75395-5F24-44A2-8288-5CB9FA766091}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82C75395-5F24-44A2-8288-5CB9FA766091}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82C75395-5F24-44A2-8288-5CB9FA766091}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
