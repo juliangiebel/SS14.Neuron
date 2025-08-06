@@ -12,16 +12,8 @@
     <title>Document</title>
 </head>
 <body>
-@if (ContextAccessor.HttpContext?.User.Identity is { IsAuthenticated: true })
-{
-    <p>Hello @ContextAccessor.HttpContext?.User.Identity.Name</p>
-}
 <CascadingValue Value="ContextAccessor.HttpContext">
     @Body    
 </CascadingValue>
 </body>
 </html>
-
-@code
-{
-}

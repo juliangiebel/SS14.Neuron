@@ -1,0 +1,22 @@
+﻿@using Microsoft.AspNetCore.Http
+@inherits Neuron.Common.Components.Page
+@layout PageLayout
+
+@{
+    if (Context?.User.Identity is { IsAuthenticated: true })
+    {
+        <form method="post" action="/account/logout?returnUrl=~/">
+            <button type="submit" class="nav-link btn btn-link text-dark">Click here to Logout</button>
+        </form>
+    }
+    else
+    {
+        <p>You have successfully logged out of the application.</p>
+    }
+}
+
+@code 
+{
+    [CascadingParameter]
+    public HttpContext? Context { get; set; }
+}

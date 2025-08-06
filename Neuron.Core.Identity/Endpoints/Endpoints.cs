@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Neuron.Common.Validation;
-using Neuron.Core.Identity.Components;
+using Neuron.Core.Identity.Components.Account;
 using Neuron.Core.Identity.Endpoints.Account;
 
 namespace Neuron.Core.Identity.Endpoints;
@@ -26,13 +26,15 @@ public static class Endpoints
         
         account.MapGet("/login/recovery", () => "");
         account.MapGet("/login/external", () => "");
-        account.MapGet("/logout", () => "");
-        account.MapGet("/email/confirm", () => "");
-        account.MapGet("/email/confirm_change", () => "");
+        account.MapGet("/logout", () => new RazorComponentResult<LogoutPage>());
+        account.MapPost("/logout", Logout.Post);
+        
+        account.MapGet("/email/confirm", () => Email.ConfirmGet);
+        account.MapGet("/email/confirm_change", () => Email.ChangeGet);
         account.MapGet("/email/resend_confirmation", () => "");
         account.MapGet("/password/forgotten", () => "");
         account.MapGet("/password/reset", () => "");
-        account.MapGet("/password/reset_confirm", () => "");
+        account.MapGet("/password/reset_confirm", () => new RazorComponentResult<PasswordResetConfirmationPage>());
         
         account.MapGet("/lockout", () => new RazorComponentResult<Lockout>());
         account.MapGet("/access_denied", () => new RazorComponentResult<AccessDenied>());

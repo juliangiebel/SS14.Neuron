@@ -5,11 +5,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Neuron.Common.Types;
-using Neuron.Common.Validation;
 using Neuron.Core.Identity.Database;
 using Neuron.Core.Identity.Endpoints;
-using Neuron.Core.Identity.Endpoints.Account;
 using Neuron.Core.Identity.Model;
 using Neuron.Core.Identity.Services;
 

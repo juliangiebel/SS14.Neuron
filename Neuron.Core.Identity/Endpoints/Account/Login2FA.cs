@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Neuron.Core.Identity.Components;
+using Neuron.Core.Identity.Components.Account;
 using Neuron.Core.Identity.Model;
 
 namespace Neuron.Core.Identity.Endpoints.Account;

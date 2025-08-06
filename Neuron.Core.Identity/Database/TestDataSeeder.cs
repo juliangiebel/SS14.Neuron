@@ -25,7 +25,7 @@ public sealed class TestDataSeeder(IServiceProvider serviceProvider) : IHostedSe
 
         var user = new IdpUser
         {
-            UserName = "test@example.test",
+            UserName = "TestUser",
             Email = "test@example.test"
         };
         

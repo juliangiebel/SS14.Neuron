@@ -7,9 +7,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Neuron.Core.Identity.Components;
+using Neuron.Core.Identity.Components.Account;
 using Neuron.Core.Identity.Model;
 
 namespace Neuron.Core.Identity.Endpoints.Account;
@@ -44,10 +43,10 @@ public static class Login
         [FromQuery] string? returnUrl = null)
     {
         returnUrl ??= "~/";
-
-        var test = await signInManager.UserManager.Users.ToListAsync();
         
-        var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+        var user = await signInManager.UserManager.FindByEmailAsync(model.Email);
+        var result = await signInManager.PasswordSignInAsync(user?.UserName ?? model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+        
         if (result.Succeeded)
         {
             logger.LogDebug("User logged in.");
