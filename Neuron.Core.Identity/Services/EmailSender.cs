@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Neuron.Core.Identity.Model;
+using Neuron.Common.Model;
 
 namespace Neuron.Core.Identity.Services;
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Neuron.Core.Identity.Model;
+using Neuron.Common.Model;
 
 namespace Neuron.Core.Identity.Database;
 

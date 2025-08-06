@@ -1,0 +1,15 @@
+﻿@inherits Neuron.Common.Components.PageBase
+@layout MinimalLayout
+<p>@Message</p>
+
+@code
+{
+    [Parameter]
+    public string? Title { get; set; }
+    
+    [Parameter]
+    public string? Message { get; set; }
+    
+    
+    public record Model(string Title, string Message);
+}

@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Neuron.Common.Model;
 using Neuron.Core.Identity.Components.Account;
-using Neuron.Core.Identity.Model;
 
 namespace Neuron.Core.Identity.Endpoints.Account;
 
@@ -26,7 +26,7 @@ public static class Email
         code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
         var result = await userManager.ConfirmEmailAsync(user, code);
 
-        return new RazorComponentResult<ConfirmEmailPage>(new
+        return new RazorComponentResult<SimpleMessage>(new
         {
             Message = result.Succeeded ? "Email confirmed." : "Error while validating email"
         });
@@ -51,9 +51,9 @@ public static class Email
         var result = await userManager.ChangeEmailAsync(user, email, code);
 
         if (!result.Succeeded)
-            return new RazorComponentResult<ConfirmEmailPage>(new { Message = "Error while changing email" });
+            return new RazorComponentResult<SimpleMessage>(new { Message = "Error while changing email" });
         
         await signInManager.RefreshSignInAsync(user);
-        return new RazorComponentResult<ConfirmEmailPage>(new { Message = "Thank you for confirming your email change" });
+        return new RazorComponentResult<SimpleMessage>(new { Message = "Thank you for confirming your email change" });
     }
 }

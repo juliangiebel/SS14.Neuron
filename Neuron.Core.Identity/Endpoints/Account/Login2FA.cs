@@ -5,8 +5,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Neuron.Common.Components.Extensions;
+using Neuron.Common.Model;
 using Neuron.Core.Identity.Components.Account;
-using Neuron.Core.Identity.Model;
 
 namespace Neuron.Core.Identity.Endpoints.Account;
 
@@ -26,6 +27,7 @@ public static class Login2Fa
     }
 
     public static async Task<Results<RazorComponentResult, RedirectHttpResult, RedirectToRouteHttpResult>> Post(
+        HttpContext context,
         SignInManager<IdpUser> signInManager,
         UserManager<IdpUser> userManager,
         [FromForm] Login2FaModel model,
@@ -33,6 +35,9 @@ public static class Login2Fa
         [FromQuery] string? returnUrl = null)
     {
         returnUrl ??= "~/";
+        
+        if (context.GetErrors() is not [])
+            return new RazorComponentResult<TwoFactorLoginPage>(new { RememberMe = rememberMe, ReturnUrl = returnUrl });
         
         var user = await signInManager.GetTwoFactorAuthenticationUserAsync();
 
@@ -49,7 +54,8 @@ public static class Login2Fa
         if (result.IsLockedOut)
             return TypedResults.Redirect("/lockout");
         
-        return new RazorComponentResult<TwoFactorLoginPage>(new { RememberMe = rememberMe, ReturnUrl = returnUrl, Error = "Invalid code." });
+        context.AddError("Invalid code.");
+        return new RazorComponentResult<TwoFactorLoginPage>(new { RememberMe = rememberMe, ReturnUrl = returnUrl });
     }
 
     public sealed class Login2FaModel

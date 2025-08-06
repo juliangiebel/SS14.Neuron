@@ -8,8 +8,11 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Neuron.Common.Components.Extensions;
+using Neuron.Common.Model;
 using Neuron.Core.Identity.Components.Account;
-using Neuron.Core.Identity.Model;
+using Neuron.Core.Identity.Extensions;
+using Neuron.Core.Identity.Types;
 
 namespace Neuron.Core.Identity.Endpoints.Account;
 
@@ -24,14 +27,7 @@ public static class Login
         returnUrl ??= "~/";
 
         await context.SignOutAsync(IdentityConstants.ExternalScheme);
-        var externalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-        
-        return new RazorComponentResult<LoginPage>(new
-        {
-            ReturnUrl = returnUrl,
-            ExternalLogins = externalLogins,
-            Token = antiforgery.GetAndStoreTokens(context),
-        });
+        return await LoginPageResult(signInManager, returnUrl, antiforgery.GetAndStoreTokens(context));
     }
 
     public static async Task<Results<RazorComponentResult, RedirectHttpResult, RedirectToRouteHttpResult>> Post(
@@ -43,8 +39,26 @@ public static class Login
         [FromQuery] string? returnUrl = null)
     {
         returnUrl ??= "~/";
+
+        if (context.GetErrors() is not [])
+            return await LoginPageResult(signInManager, returnUrl, antiforgery.GetAndStoreTokens(context));
         
-        var user = await signInManager.UserManager.FindByEmailAsync(model.Email);
+        var user = await signInManager.UserManager.FindByNameOrEmailAsync(model.Email);
+        if (user is null)
+        {
+            context.AddError("Invalid login attempt.");
+            return await LoginPageResult(signInManager, returnUrl, antiforgery.GetAndStoreTokens(context));
+        }
+        
+        var emailConfirmed = await signInManager.UserManager.IsEmailConfirmedAsync(user);
+        if (signInManager.UserManager.Options.SignIn.RequireConfirmedEmail && !emailConfirmed)
+        {
+            context.AddError("The email address for this account still needs to be confirmed. " +
+                             "Please confirm your email address before trying to log in.");
+            
+            return await LoginPageResult(signInManager, returnUrl, antiforgery.GetAndStoreTokens(context));
+        }
+        
         var result = await signInManager.PasswordSignInAsync(user?.UserName ?? model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
         
         if (result.Succeeded)
@@ -61,15 +75,26 @@ public static class Login
             logger.LogWarning("User locked out.");
             return TypedResults.Redirect("/lockout");
         }
+
+        if (result is IdpSignInResult {IsLocked: true})
+        {
+            logger.LogWarning("User locked by administrator.");
+            return TypedResults.Redirect("/locked");
+        }
         
-        var externalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+        context.AddError("Invalid login attempt.");
+        return await LoginPageResult(signInManager, returnUrl, antiforgery.GetAndStoreTokens(context));
+    }
+
+    private static async Task<RazorComponentResult> LoginPageResult(SignInManager<IdpUser> manager, string returnUrl, AntiforgeryTokenSet token)
+    {
+        var externalLogins = (await manager.GetExternalAuthenticationSchemesAsync()).ToList();
         
         return new RazorComponentResult<LoginPage>(new
         {
             ReturnUrl = returnUrl, 
             ExternalLogins = externalLogins,
-            Token = antiforgery.GetAndStoreTokens(context),
-            Error = "Invalid login attempt."
+            Token = token
         });
     }
     

@@ -1,7 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Antiforgery
 @using Microsoft.AspNetCore.Authentication
+@using Neuron.Common.Components.Extensions
 
-@inherits Neuron.Common.Components.Page
+@inherits PageBase
 @layout PageLayout
 
 <h1>Login</h1>
@@ -16,6 +17,12 @@
         Remember me
     </label>
     <button type="submit">Log in</button>
+    <ul>
+       @foreach (var error in Context?.GetErrors() ?? [])
+       {
+           <li>@error</li>
+       }
+    </ul>
 </form>
 
 @code
@@ -28,8 +35,5 @@
 
     [Parameter]
     public AntiforgeryTokenSet Token { get; set; } = null!;
-    
-    [Parameter]
-    public string? Error { get; set; }
 
 }

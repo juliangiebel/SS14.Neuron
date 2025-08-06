@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Neuron.Core.Identity.Model;
+using Neuron.Common.Model;
 
 namespace Neuron.Core.Identity.Database;
 

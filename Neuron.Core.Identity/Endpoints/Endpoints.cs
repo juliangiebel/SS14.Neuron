@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Neuron.Common.Components.Validation;
 using Neuron.Common.Validation;
 using Neuron.Core.Identity.Components.Account;
 using Neuron.Core.Identity.Endpoints.Account;
@@ -16,13 +17,13 @@ public static class Endpoints
 
         account.MapGet("/login", Login.Get);
         account.MapPost("/login", Login.Post)
-            .AddEndpointFilter<ValidationFilter<Login.LoginModel>>();;
+            .AddEndpointFilter<UiValidationFilter<Login.LoginModel>>();;
         
         account.MapGet("/login/2fa", () => "")
             .WithName("LoginWith2fa");
 
         account.MapPost("/login/2fa", Login2Fa.Post)
-            .AddEndpointFilter<ValidationFilter<Login2Fa.Login2FaModel>>();
+            .AddEndpointFilter<UiValidationFilter<Login2Fa.Login2FaModel>>();
         
         account.MapGet("/login/recovery", () => "");
         account.MapGet("/login/external", () => "");
@@ -37,6 +38,14 @@ public static class Endpoints
         account.MapGet("/password/reset_confirm", () => new RazorComponentResult<PasswordResetConfirmationPage>());
         
         account.MapGet("/lockout", () => new RazorComponentResult<Lockout>());
+
+        //TODO: translation. That'll also keep strings in code short
+        var model = new SimpleMessage.Model(
+            "Account locked", 
+            "This account has been locked by an administrator. Please contact support if you believe this to be an error."
+        )
+            ;
+        account.MapGet("/locked", () => new RazorComponentResult<SimpleMessage>(model));
         account.MapGet("/access_denied", () => new RazorComponentResult<AccessDenied>());
 
         var manage = account.MapGroup("/manage")
