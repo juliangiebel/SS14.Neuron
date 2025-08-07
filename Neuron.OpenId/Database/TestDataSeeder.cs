@@ -28,10 +28,17 @@ public sealed class TestDataSeeder(IServiceProvider serviceProvider) : IHostedSe
             ClientSecret = "test_secret",
             ClientType = OpenIddictConstants.ClientTypes.Confidential,
             DisplayName = "Test Client",
+            RedirectUris = { new Uri("https://localhost:7175/callback") },
             Permissions =
             {
+                OpenIddictConstants.Permissions.Endpoints.Authorization,
                 OpenIddictConstants.Permissions.Endpoints.Token,
                 OpenIddictConstants.Permissions.GrantTypes.ClientCredentials,
+                OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
+                OpenIddictConstants.Permissions.ResponseTypes.Code,
+                OpenIddictConstants.Permissions.Scopes.Email,
+                OpenIddictConstants.Permissions.Scopes.Profile,
+                OpenIddictConstants.Permissions.Scopes.Roles,
                 OpenIddictConstants.Permissions.Prefixes.Scope + "test_scope"
             }
         };

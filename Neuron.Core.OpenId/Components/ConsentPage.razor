@@ -1,4 +1,40 @@
-﻿@inherits Neuron.Common.Components.PageBase
+﻿@using System.Collections.Immutable
+@using Microsoft.Extensions.Primitives
+@using Neuron.Core.OpenId.Endpoints.Authorization
+@inherits Neuron.Common.Components.PageBase
 @layout MinimalLayout
 
 <h1>Consent</h1>
+
+@if (Context is null)
+    return;
+
+<p>Do you want to grant <strong>@ApplicationName</strong> access to your data?</p>
+<p>The following scopes have been requested:</p>
+<p>
+    @foreach (var scope in Scopes)
+    {
+        <span>@scope</span>
+    }
+</p>
+
+<form method="post">
+    @* Flow the request parameters so they can be received by the Accept/Reject actions: *@
+    @foreach (var parameter in Context.Request.HasFormContentType ?
+                  (IEnumerable<KeyValuePair<string, StringValues>>) Context.Request.Form : Context.Request.Query)
+    {
+        <input type="hidden" name="@parameter.Key" value="@parameter.Value" />
+    }
+
+    <input name="submit.Accept" type="submit" value="Yes" formmethod="post" formaction="/connect/authorize/accept" />
+    <input name="submit.Deny" type="submit" value="No" formmethod="post" formaction="/connect/authorize/deny" />
+</form>
+
+@code
+{
+    [Parameter] 
+    public string ApplicationName { get; set; } = null!;
+    
+    [Parameter]
+    public ImmutableArray<string> Scopes { get; set; } = [];
+}

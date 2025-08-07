@@ -51,16 +51,14 @@ app.UseSecurityHeaders(policies =>
     });
 });
 
+app.UseRouting();
+app.UseAntiforgery();
 
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseStaticFiles();
-
-app.UseRouting();
-
-app.UseAntiforgery();
 
 app.UseNeuronCoreIdentity();
 app.UseNeuronCoreOpenId();

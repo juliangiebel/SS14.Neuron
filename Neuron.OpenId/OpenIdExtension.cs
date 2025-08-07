@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Neuron.Core.OpenId.Database;
+using Neuron.Core.OpenId.Services;
 using OpenIddict.Abstractions;
 using OpenIddict.Client;
 
@@ -44,7 +45,7 @@ public static class OpenIdExtension
             })
             .AddServer(options =>
             {
-                options.SetAuthorizationEndpointUris("connect/authorize")
+                options.SetAuthorizationEndpointUris("connect/authorize", "connect/authorize/accept")
                     .SetTokenEndpointUris("connect/token")
                     .SetEndSessionEndpointUris("connect/endsession")
                     .SetUserInfoEndpointUris("connect/userinfo");
@@ -71,7 +72,8 @@ public static class OpenIdExtension
                 options.UseLocalServer();
                 options.UseAspNetCore();
             });
-        
+
+        builder.Services.AddScoped<ApplicationAuthorizationService>();
         builder.Services.AddHostedService<TestDataSeeder>();
     }
 }

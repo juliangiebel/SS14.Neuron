@@ -1,5 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http
-@inherits Neuron.Common.Components.PageBase
+﻿@inherits Neuron.Common.Components.PageBase
 @layout PageLayout
 
 @{
@@ -13,10 +12,4 @@
     {
         <p>You have successfully logged out of the application.</p>
     }
-}
-
-@code 
-{
-    [CascadingParameter]
-    public HttpContext? Context { get; set; }
 }
