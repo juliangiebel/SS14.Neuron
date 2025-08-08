@@ -13,7 +13,7 @@ public static class Endpoints
     public static void MapNeuronCoreIdentityEndpoints(this WebApplication app)
     {
         var account = app.MapGroup("/account")
-            .WithTags("Identity UI", "Neuron.Core.Identity");;
+            .WithTags("Identity UI", "Neuron.Core.Identity");
 
         account.MapGet("/login", Login.Get);
         account.MapPost("/login", Login.Post)

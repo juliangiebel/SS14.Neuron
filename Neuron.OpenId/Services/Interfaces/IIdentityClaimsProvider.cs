@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Collections.Immutable;
+using System.Security.Claims;
 using Neuron.OpenId.Helpers;
 using OpenIddict.Abstractions;
 
@@ -9,9 +10,11 @@ public interface IIdentityClaimsProvider
     /// <summary>
     /// Provides claims for the specified identity.
     /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="scopes"></param>
     /// <param name="identity">The identity for which claims are to be provided.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task ProvideClaimsAsync(ClaimsIdentity identity);
+    Task ProvideClaimsAsync(string userId, ImmutableArray<string> scopes, ClaimsIdentity identity);
 
     /// <summary>
     /// TODO: Document

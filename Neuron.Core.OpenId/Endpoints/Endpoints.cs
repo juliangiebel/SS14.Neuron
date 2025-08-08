@@ -9,14 +9,17 @@ public static class Endpoints
     public static void MapNeuronCoreOpenIdEndpoints(this WebApplication app)
     {
         var account = app.MapGroup("/connect/authorize")
-            .WithTags("OpenId UI", "Neuron.Core.OpenId");;
+            .WithTags("OpenId UI", "Neuron.Core.OpenId");
         
         account.MapGet("/", Authorization.Authorize.GetAndPost);
         account.MapPost("/", Authorization.Authorize.GetAndPost);
         
         account.MapPost("/accept", Authorization.Accept.Post)
             .RequireAuthorization();
-        
+
+        app.MapPost("/connect/token", Authorization.ExchangeToken.Post)
+            .WithTags("OpenId API", "Neuron.Core.OpenId");
+
     }
 
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
+using Neuron.OpenId.Services.Interfaces;
 using OpenIddict.Abstractions;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
@@ -11,12 +12,14 @@ public class ApplicationAuthorizationService
     private readonly IOpenIddictScopeManager _scopeManager;
     private readonly IOpenIddictAuthorizationManager _authorizationManager;
     private readonly IOpenIddictApplicationManager _applicationManager;
+    private readonly IIdentityClaimsProvider _claimsProvider;
 
-    public ApplicationAuthorizationService(IOpenIddictScopeManager scopeManager, IOpenIddictAuthorizationManager authorizationManager, IOpenIddictApplicationManager applicationManager)
+    public ApplicationAuthorizationService(IOpenIddictScopeManager scopeManager, IOpenIddictAuthorizationManager authorizationManager, IOpenIddictApplicationManager applicationManager, IIdentityClaimsProvider claimsProvider)
     {
         _scopeManager = scopeManager;
         _authorizationManager = authorizationManager;
         _applicationManager = applicationManager;
+        _claimsProvider = claimsProvider;
     }
 
 
@@ -24,16 +27,14 @@ public class ApplicationAuthorizationService
         string userId, object application,
         List<object> authorizations,
         ImmutableArray<string> scopes,
-        Func<Claim, IEnumerable<string>> destinationsSelector, 
-        IEnumerable<Claim>? claims = null)
+        Func<Claim, IEnumerable<string>> destinationsSelector)
     {
         var identity = new ClaimsIdentity(
             authenticationType: TokenValidationParameters.DefaultAuthenticationType,
             nameType: Claims.Name,
             roleType: Claims.Role);
 
-        if (claims is not null)
-            identity.AddClaims(claims);
+        await _claimsProvider.ProvideClaimsAsync(userId, scopes, identity);
         
         identity.SetScopes(scopes);
         identity.SetResources(await _scopeManager.ListResourcesAsync(identity.GetScopes()).ToListAsync());

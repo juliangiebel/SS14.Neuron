@@ -11,4 +11,6 @@ public interface IOpenIdActionService
 {
     public Result<Void, AuthenticationValidationFailure> ValidateOpenIdAuthentication(HttpContext context, AuthenticateResult auth, OpenIddictRequest request);
     public Task<AuthorizationResult> AuthorizeActionAsync(OpenIddictRequest request, ImmutableArray<string> scopes);
+    public Task<ConsentResult> AcceptActionAsync(OpenIddictRequest request, ImmutableArray<string> scopes);
+    public Task<ExchangeResult> ExchangeActionAsync(OpenIddictRequest request, HttpContext context, ImmutableArray<string> scopes);
 }

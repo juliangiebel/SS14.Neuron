@@ -1,10 +1,13 @@
 ﻿using System.Collections.Immutable;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Neuron.OpenId.Services.Interfaces;
 using Neuron.OpenId.Types;
 using OpenIddict.Abstractions;
+using OpenIddict.Server.AspNetCore;
 using Void = Neuron.OpenId.Types.Void;
 
 namespace Neuron.OpenId.Services;
@@ -103,7 +106,66 @@ public class OpenIdActionService : IOpenIdActionService
             _ => AuthorizationResult.Consent(appName ?? "", scopes)
         };
     }
-    
+
+    public async Task<ConsentResult> AcceptActionAsync(OpenIddictRequest request, ImmutableArray<string> scopes)
+    {
+        var application = await _applicationManager.FindByClientIdAsync(request.ClientId!);
+        if (application is null)
+            return ConsentResult.Error(ApplicationNotFoundError);
+        
+        if (!await _signedInIdentity.IsAvailableAsync())
+        {
+            _logger.LogWarning("Signed in user is not available.");
+            return ConsentResult.Forbid(OpenIddictConstants.Errors.AccessDenied);
+        }
+        
+        var userId = await _signedInIdentity.GetUserIdAsync();
+        var authorizations = await _authorizationManager.FindAsync(
+            subject: userId,
+            client: await _applicationManager.GetIdAsync(application),
+            status: OpenIddictConstants.Statuses.Valid,
+            type: OpenIddictConstants.AuthorizationTypes.Permanent,
+            scopes: scopes
+        ).ToListAsync();
+        
+        if (authorizations.Count is 0 && await _applicationManager.HasConsentTypeAsync(application, OpenIddictConstants.ConsentTypes.External))
+            return ConsentResult.Forbid(OpenIddictConstants.Errors.AccessDenied);
+        
+        var principal = await _applicationAuthorizationService.CreateAuthorizedPrincipal(
+            userId, 
+            application, 
+            authorizations, 
+            scopes, 
+            _claimsProvider.GetDestinations);
+
+        return ConsentResult.SignIn(principal);
+    }
+
+    public async Task<ExchangeResult> ExchangeActionAsync(OpenIddictRequest request, HttpContext context, ImmutableArray<string> scopes)
+    {
+        if (!request.IsAuthorizationCodeGrantType() && !request.IsRefreshTokenGrantType()) 
+            return ExchangeResult.Error(OpenIddictConstants.Errors.UnsupportedGrantType);
+        
+        var result = await context.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+        var userId = result.Principal?.GetClaim(OpenIddictConstants.Claims.Subject);
+        
+        if (userId is null 
+            || !await _signedInIdentity.IsAvailableAsync(userId) 
+            || !await _signedInIdentity.CanSignInAsync(userId))
+        {
+            return ExchangeResult.Forbid(OpenIddictConstants.Errors.InvalidGrant);
+        }
+            
+        var identity = new ClaimsIdentity(
+            authenticationType: TokenValidationParameters.DefaultAuthenticationType,
+            nameType: OpenIddictConstants.Claims.Name,
+            roleType: OpenIddictConstants.Claims.Role);
+        
+        await _claimsProvider.ProvideClaimsAsync(await _signedInIdentity.GetUserIdAsync(userId) ?? "", scopes, identity);
+        identity.SetDestinations(_claimsProvider.GetDestinations);
+        return ExchangeResult.SignIn(new ClaimsPrincipal(identity));
+    }
+
     private async Task<AuthorizationResult> HandleSignIn(
         OpenIddictRequest request,
         object application,

@@ -1,12 +1,15 @@
 ﻿using System.Collections.Immutable;
 using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Neuron.Common.Model;
 using Neuron.Core.OpenId.Components;
 using Neuron.OpenId.Services;
+using Neuron.OpenId.Services.Interfaces;
 using Neuron.OpenId.Types;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
@@ -18,7 +21,8 @@ public static class Authorize
 {
     public static async Task<IResult> GetAndPost(
             HttpContext context,
-            OpenIdActionService actionService)
+            [FromServices] IOpenIdActionService actionService,
+            [FromServices] IAntiforgery antiforgery)
     {
         var request = context.GetOpenIddictServerRequest();
         if (request is null)
@@ -48,19 +52,21 @@ public static class Authorize
             AuthorizationResult.ResultType.SignIn =>
                 TypedResults.SignIn(authorization.Principal!, authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme),
             
-            _ => new RazorComponentResult<ConsentPage>(new Model(authorization.AppName, authorization.Scopes))
+            _ => new RazorComponentResult<ConsentPage>(new Model(authorization.AppName, authorization.Scopes, antiforgery.GetAndStoreTokens(context)))
         };
 
     }
 
     // TODO: Use translation instead
-    private static string GetErrorDescription(string? error) => error switch
+    public static string GetErrorDescription(string? error) => error switch
     {
         OpenIdActionService.ApplicationNotFoundError => "No application for the given client id.",
         Errors.AccessDenied => "The logged in user is not allowed to access this client application.",
         Errors.ConsentRequired => "Interactive user consent is required.",
+        Errors.UnsupportedGrantType => "The specified grant type is not supported.",
+        Errors.InvalidGrant => "The token is no longer valid.",
         _ => "An unknown error occurred."
     };
     
-    public sealed record Model(string? ApplicationName, ImmutableArray<string>? Scopes);
+    public sealed record Model(string? ApplicationName, ImmutableArray<string>? Scopes, AntiforgeryTokenSet Token);
 }

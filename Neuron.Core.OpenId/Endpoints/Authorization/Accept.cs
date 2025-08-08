@@ -3,10 +3,13 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Neuron.Common.Model;
 using Neuron.OpenId.Helpers;
 using Neuron.OpenId.Services;
+using Neuron.OpenId.Services.Interfaces;
+using Neuron.OpenId.Types;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 using static OpenIddict.Abstractions.OpenIddictConstants;
@@ -15,45 +18,28 @@ namespace Neuron.Core.OpenId.Endpoints.Authorization;
 
 public static class Accept
 {
-    public static async Task<Results<ForbidHttpResult, SignInHttpResult>> Post(
-        HttpContext context,
-        UserManager<IdpUser> userManager,
-        IOpenIddictApplicationManager applicationManager,
-        IOpenIddictAuthorizationManager authorizationManager,
-        ApplicationAuthorizationService service)
-    {//TODO: Check submit.accept and add antiforgery token
-        var request = context.GetOpenIddictServerRequest() ??
-            throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
+    public static async Task<Results<ForbidHttpResult, SignInHttpResult, BadRequest<string>>> Post(
+        HttpContext context, 
+        [FromServices] IOpenIdActionService actionService)
+    {
+        if (!context.Request.Form.ContainsKey("submit.accept"))
+            return TypedResults.BadRequest("Invalid form data");
+        
+        var request = context.GetOpenIddictServerRequest();
+        if (request is null)
+            return TypedResults.BadRequest("The OpenID Connect request cannot be retrieved.");
+        
+        var result = await actionService.AcceptActionAsync(request, request.GetScopes());
 
-        var user = await userManager.GetUserAsync(context.User) ??
-            throw new InvalidOperationException("The user cannot be retrieved.");
-        
-        var application = await applicationManager.FindByClientIdAsync(request.ClientId!) ??
-            throw new InvalidOperationException("The application cannot be retrieved.");
-        
-        var authorizations = await authorizationManager.FindAsync(
-            subject: await userManager.GetUserIdAsync(user),
-            client: await applicationManager.GetIdAsync(application),
-            status: Statuses.Valid,
-            type: AuthorizationTypes.Permanent,
-            scopes: request.GetScopes()
-        ).ToListAsync();
-        
-        if (authorizations.Count is 0 && await applicationManager.HasConsentTypeAsync(application, ConsentTypes.External))
-            return AuthResults.Forbid(Errors.ConsentRequired, "The logged in user is not allowed to access this client application");
-        
-    
-        var userId = await userManager.GetUserIdAsync(user);
-        var scopes = request.GetScopes();
-        var principal = await service.CreateAuthorizedPrincipal(
-            userId, 
-            application, 
-            authorizations, 
-            scopes, 
-            GetDestinations, 
-            await SetClaims(userManager, user));
-        
-        return TypedResults.SignIn(principal, authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+        return result.Type switch
+        {
+            ConsentResult.ResultType.SignIn =>
+                TypedResults.SignIn(result.Principal!,
+                    authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme),
+            ConsentResult.ResultType.Forbid =>
+                AuthResults.Forbid(result.ErrorName ?? "", Authorize.GetErrorDescription(result.ErrorName)),
+            _ => TypedResults.BadRequest(Authorize.GetErrorDescription(result.ErrorName))
+        };
     }
 
     private static async Task<IEnumerable<Claim>> SetClaims(UserManager<IdpUser> userManager, IdpUser user)
