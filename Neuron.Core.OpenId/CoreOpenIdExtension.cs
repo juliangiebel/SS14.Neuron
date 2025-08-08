@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Neuron.Core.OpenId.Endpoints;
+using Neuron.OpenId;
 
 namespace Neuron.Core.OpenId;
 

@@ -2,12 +2,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Neuron.Core.OpenId.Database;
-using Neuron.Core.OpenId.Services;
+using Neuron.OpenId.Database;
+using Neuron.OpenId.Services;
 using OpenIddict.Abstractions;
 using OpenIddict.Client;
 
-namespace Neuron.Core.OpenId;
+namespace Neuron.OpenId;
 
 public static class OpenIdExtension
 {

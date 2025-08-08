@@ -1,10 +1,9 @@
-﻿using System.Collections.Immutable;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 
-namespace Neuron.Core.OpenId.Helpers;
+namespace Neuron.OpenId.Helpers;
 
 public static class ClaimHelper
 {

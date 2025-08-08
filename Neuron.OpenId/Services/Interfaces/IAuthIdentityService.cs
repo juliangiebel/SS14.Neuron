@@ -1,10 +1,7 @@
-﻿using System.Security.Claims;
+﻿namespace Neuron.OpenId.Services.Interfaces;
 
-namespace Neuron.Core.OpenId.Services.Interfaces;
-
-public interface IIdentityClaimsService
+public interface ISignedInIdentityService
 {
     Task<string> GetUserIdAsync();
-    Task<IEnumerable<Claim>> GetClaimsAsync();
     Task<bool> CanSignInAsync();
 }

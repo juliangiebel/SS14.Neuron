@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using OpenIddict.Abstractions;
 
-namespace Neuron.Core.OpenId.Database;
+namespace Neuron.OpenId.Database;
 
 public sealed class TestDataSeeder(IServiceProvider serviceProvider) : IHostedService
 {

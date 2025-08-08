@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 
-namespace Neuron.Core.OpenId.Endpoints;
+namespace Neuron.OpenId.Endpoints;
 
 public static class Endpoints
 {

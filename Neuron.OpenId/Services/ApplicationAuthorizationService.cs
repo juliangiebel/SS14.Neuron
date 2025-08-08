@@ -4,7 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
-namespace Neuron.Core.OpenId.Services;
+namespace Neuron.OpenId.Services;
 
 public class ApplicationAuthorizationService
 {
