@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Neuron.OpenId.Database;
 using Neuron.OpenId.Services;
+using Neuron.OpenId.Services.Interfaces;
 using OpenIddict.Abstractions;
 using OpenIddict.Client;
 
@@ -73,6 +74,7 @@ public static class OpenIdExtension
                 options.UseAspNetCore();
             });
 
+        builder.Services.AddScoped<IOpenIdActionService, OpenIdActionService>();
         builder.Services.AddScoped<ApplicationAuthorizationService>();
         builder.Services.AddHostedService<TestDataSeeder>();
     }
