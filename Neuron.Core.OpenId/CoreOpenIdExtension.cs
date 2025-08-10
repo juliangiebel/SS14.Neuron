@@ -74,7 +74,7 @@ public static class CoreOpenIdExtension
                     .EnableAuthorizationEndpointPassthrough()
                     //.EnableEndSessionEndpointPassthrough()
                     //.EnableTokenEndpointPassthrough()
-                    .EnableUserInfoEndpointPassthrough()
+                    //.EnableUserInfoEndpointPassthrough()
                     .EnableStatusCodePagesIntegration();
                 
             })

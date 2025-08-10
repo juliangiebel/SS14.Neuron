@@ -67,14 +67,14 @@ public class OpenIdActionService : IOpenIdActionService
     {
         var application = await _applicationManager.FindByClientIdAsync(request.ClientId!);
         if (application is null)
-            return AuthorizationResult.Error("",  "application_not_found");
+            return AuthorizationResult.Error(string.Empty,  ApplicationNotFoundError);
         
         var appName =  await _applicationManager.GetDisplayNameAsync(application);
         
         if (!await _signedInIdentity.IsAvailableAsync())
         {
             _logger.LogWarning("Signed in user is not available.");
-            return AuthorizationResult.Forbidden(appName ?? "", OpenIddictConstants.Errors.AccessDenied);
+            return AuthorizationResult.Forbidden(appName ?? string.Empty, OpenIddictConstants.Errors.AccessDenied);
         }
         
         var authorizations = new List<object>();
@@ -95,15 +95,15 @@ public class OpenIdActionService : IOpenIdActionService
         return await _applicationManager.GetConsentTypeAsync(application) switch
         {
             OpenIddictConstants.ConsentTypes.External when authorizations.Count is 0 => 
-               AuthorizationResult.Forbidden(appName ?? "",  OpenIddictConstants.Errors.AccessDenied),
+               AuthorizationResult.Forbidden(appName ?? string.Empty,  OpenIddictConstants.Errors.AccessDenied),
 
             OpenIddictConstants.ConsentTypes.Implicit or OpenIddictConstants.ConsentTypes.External when authorizations.Count is not 0 =>
                 await HandleSignIn(request, application, authorizations),
             
             OpenIddictConstants.ConsentTypes.Explicit or OpenIddictConstants.ConsentTypes.Systematic when request.HasPromptValue(OpenIddictConstants.PromptValues.None) =>
-                AuthorizationResult.Forbidden(appName ?? "",  OpenIddictConstants.Errors.ConsentRequired),
+                AuthorizationResult.Forbidden(appName ?? string.Empty,  OpenIddictConstants.Errors.ConsentRequired),
             
-            _ => AuthorizationResult.Consent(appName ?? "", scopes)
+            _ => AuthorizationResult.Consent(appName ?? string.Empty, scopes)
         };
     }
 
