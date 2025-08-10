@@ -132,7 +132,7 @@ public class OpenIdActionService : IOpenIdActionService
             return ConsentResult.Forbid(OpenIddictConstants.Errors.AccessDenied);
         
         var principal = await _applicationAuthorizationService.CreateAuthorizedPrincipal(
-            userId, 
+            userId!, 
             application, 
             authorizations, 
             scopes, 
@@ -174,7 +174,7 @@ public class OpenIdActionService : IOpenIdActionService
         var scopes = request.GetScopes();
         var userId = await _signedInIdentity.GetUserIdAsync();
         var identity = await _applicationAuthorizationService
-            .CreateAuthorizedPrincipal(userId, application, authorizations, scopes, _claimsProvider.GetDestinations);
+            .CreateAuthorizedPrincipal(userId!, application, authorizations, scopes, _claimsProvider.GetDestinations);
 
         return AuthorizationResult.SignIn(identity);
     }

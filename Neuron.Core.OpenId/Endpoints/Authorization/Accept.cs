@@ -42,20 +42,6 @@ public static class Accept
         };
     }
 
-    private static async Task<IEnumerable<Claim>> SetClaims(UserManager<IdpUser> userManager, IdpUser user)
-    {
-        var username = await userManager.GetUserNameAsync(user) ?? "";
-        
-        return
-        [
-            new Claim(Claims.Subject, await userManager.GetUserIdAsync(user)),
-            new Claim(Claims.Email, await userManager.GetEmailAsync(user) ?? ""),
-            new Claim(Claims.Name, username),
-            new Claim(Claims.PreferredUsername, await userManager.GetUserNameAsync(user) ?? username),
-            ..ClaimHelper.FromList(Claims.Role, await userManager.GetRolesAsync(user))
-        ];
-    }
-
     private static IEnumerable<string> GetDestinations(Claim claim) => claim.Type switch
     {
         Claims.Name or Claims.PreferredUsername => DestinationHelper.Destination(claim, Scopes.Profile),

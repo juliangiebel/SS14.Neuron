@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Neuron.OpenId.Database;
+namespace Neuron.Core.OpenId.Database;
 
 public class OpenIdDbContext(DbContextOptions<OpenIdDbContext> options) : DbContext(options)
 {
