@@ -1,0 +1,18 @@
+﻿@using Microsoft.Extensions.Primitives
+@inherits Neuron.Common.Components.PageBase
+@layout MinimalLayout
+
+<h1>Log out</h1>
+<p>Are you sure you want to sign out?</p>
+
+
+<form action="/connect/authorize/logout" method="post">
+    @* Flow the request parameters so they can be received by the LogoutPost action: *@
+    @foreach (var parameter in Context.Request.HasFormContentType ?
+                  (IEnumerable<KeyValuePair<string, StringValues>>) Context.Request.Form : Context.Request.Query)
+    {
+        <input type="hidden" name="@parameter.Key" value="@parameter.Value" />
+    }
+
+    <input name="Confirm" type="submit" value="Yes" />
+</form>

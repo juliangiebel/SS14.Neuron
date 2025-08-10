@@ -24,10 +24,10 @@ public interface IIdentityClaimsProvider
     /// <returns></returns>
     IEnumerable<string> GetDestinations(Claim claim)  => claim.Type switch
     {
-        OpenIddictConstants.Claims.Name or OpenIddictConstants.Claims.PreferredUsername => DestinationHelper.Destination(claim, OpenIddictConstants.Permissions.Scopes.Profile),
-        OpenIddictConstants.Claims.Email => DestinationHelper.Destination(claim, OpenIddictConstants.Permissions.Scopes.Email),
-        OpenIddictConstants.Claims.Role => DestinationHelper.Destination(claim, OpenIddictConstants.Permissions.Scopes.Roles),
-        OpenIddictConstants.Claims.Address => DestinationHelper.Destination(claim, OpenIddictConstants.Permissions.Scopes.Address),
+        OpenIddictConstants.Claims.Name or OpenIddictConstants.Claims.PreferredUsername => DestinationHelper.Destination(claim, OpenIddictConstants.Scopes.Profile),
+        OpenIddictConstants.Claims.Email => DestinationHelper.Destination(claim, OpenIddictConstants.Scopes.Email),
+        OpenIddictConstants.Claims.Role => DestinationHelper.Destination(claim, OpenIddictConstants.Scopes.Roles),
+        OpenIddictConstants.Claims.Address => DestinationHelper.Destination(claim, OpenIddictConstants.Scopes.Address),
         "AspNet.Identity.SecurityStamp" => DestinationHelper.Destination(),
         _ => DestinationHelper.Destination(OpenIddictConstants.Destinations.AccessToken)
     };

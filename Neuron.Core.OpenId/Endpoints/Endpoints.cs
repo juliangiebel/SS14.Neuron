@@ -8,18 +8,27 @@ public static class Endpoints
 {
     public static void MapNeuronCoreOpenIdEndpoints(this WebApplication app)
     {
-        var account = app.MapGroup("/connect/authorize")
+        var authorize = app.MapGroup("/connect/authorize")
             .WithTags("OpenId UI", "Neuron.Core.OpenId");
         
-        account.MapGet("/", Authorization.Authorize.GetAndPost);
-        account.MapPost("/", Authorization.Authorize.GetAndPost);
+        authorize.MapGet("/", Authorization.Authorize.GetAndPost);
+        authorize.MapPost("/", Authorization.Authorize.GetAndPost);
         
-        account.MapPost("/accept", Authorization.Accept.Post)
+        authorize.MapPost("/accept", Authorization.Accept.Post)
             .RequireAuthorization();
 
-        app.MapPost("/connect/token", Authorization.ExchangeToken.Post)
-            .WithTags("OpenId API", "Neuron.Core.OpenId");
+        authorize.MapPost("/deny", () => AuthResults.Forbid("access_denied", "Access denied"))
+            .RequireAuthorization();
 
+        authorize.MapGet("/logout", Authorization.Logout.Get);
+        authorize.MapPost("/logout", Authorization.Logout.Post);
+        
+        //app.MapPost("/connect/token", Authorization.ExchangeToken.Post)
+        //    .WithTags("OpenId API", "Neuron.Core.OpenId");
+
+
+        app.MapPost("/debug/token", Debug.TestToken.Post)
+            .DisableAntiforgery();
     }
 
 }

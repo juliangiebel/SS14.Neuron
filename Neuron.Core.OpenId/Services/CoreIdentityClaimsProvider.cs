@@ -24,11 +24,19 @@ public class CoreIdentityClaimsProvider : IIdentityClaimsProvider
             return;
         
         var username = await _userManager.GetUserNameAsync(user) ?? "";
-        
+
         identity.AddClaim(new Claim(Claims.Subject, await _userManager.GetUserIdAsync(user)));
-        identity.AddClaim(new Claim(Claims.Email, await _userManager.GetEmailAsync(user) ?? ""));
-        identity.AddClaim(new Claim(Claims.Name, username));
-        identity.AddClaim(new Claim(Claims.PreferredUsername, await _userManager.GetUserNameAsync(user) ?? username));
-        identity.AddClaims(Claims.Role, [.. await _userManager.GetRolesAsync(user)]);
+        
+        if (scopes.Contains(OpenIddictConstants.Scopes.Profile))
+        {
+            identity.AddClaim(new Claim(Claims.Name, username));
+            identity.AddClaim(new Claim(Claims.PreferredUsername, await _userManager.GetUserNameAsync(user) ?? username));
+        }
+        
+        if (scopes.Contains(OpenIddictConstants.Scopes.Email))
+            identity.AddClaim(new Claim(Claims.Email, await _userManager.GetEmailAsync(user) ?? ""));
+        
+        if (scopes.Contains(OpenIddictConstants.Scopes.Roles))
+            identity.AddClaims(Claims.Role, [.. await _userManager.GetRolesAsync(user)]);
     }
 }
