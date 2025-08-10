@@ -46,12 +46,12 @@ public static class OpenIdExtension
             })
             .AddServer(options =>
             {
-                options.SetAuthorizationEndpointUris("connect/authorize", "connect/authorize/accept", "connect/authorize/deny")
+                options.SetAuthorizationEndpointUris("connect/authorize", "connect/authorize/accept",
+                        "connect/authorize/deny")
                     .SetTokenEndpointUris("connect/token")
                     .SetEndSessionEndpointUris("connect/endsession")
-                    .SetUserInfoEndpointUris("connect/userinfo");
-
-                options.RegisterScopes(OpenIddictConstants.Scopes.Email);
+                    .SetUserInfoEndpointUris("connect/userinfo")
+                    .SetIntrospectionEndpointUris("connect/introspect");
 
                 options.AllowAuthorizationCodeFlow();
                 options.AllowRefreshTokenFlow();
@@ -66,7 +66,7 @@ public static class OpenIdExtension
                 // Register the signing and encryption credentials.
                 options.AddDevelopmentEncryptionCertificate()
                     .AddDevelopmentSigningCertificate();
-
+                
                 // Register the ASP.NET Core host and configure the ASP.NET Core-specific options.
                 options.UseAspNetCore()
                     .EnableAuthorizationEndpointPassthrough()
