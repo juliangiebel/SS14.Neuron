@@ -42,7 +42,6 @@ public sealed class TestDataSeeder(IServiceProvider serviceProvider) : IHostedSe
                 OpenIddictConstants.Permissions.Scopes.Email,
                 OpenIddictConstants.Permissions.Scopes.Profile,
                 OpenIddictConstants.Permissions.Scopes.Roles,
-                OpenIddictConstants.Permissions.Prefixes.Scope + OpenIddictConstants.Scopes.OfflineAccess,
                 OpenIddictConstants.Permissions.Prefixes.Scope + "test_scope"
             }
         };

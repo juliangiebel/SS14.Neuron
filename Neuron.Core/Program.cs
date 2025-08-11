@@ -6,6 +6,10 @@ using Neuron.Core.OpenId;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddYamlFile("appsettings.yaml", false, true);
+builder.Configuration.AddYamlFile($"appsettings.{builder.Environment.EnvironmentName}.yaml", true, true);
+builder.Configuration.AddYamlFile("appsettings.Secret.yaml", true, true);
+
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
