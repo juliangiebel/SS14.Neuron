@@ -12,8 +12,14 @@ using Void = Neuron.OpenId.Types.Void;
 
 namespace Neuron.OpenId.Services;
 
+/// <summary>
+/// Encapsulates OpenIddict server-side OpenID Connect/OAuth2 endpoint logic (authorize, consent, exchange).
+/// </summary>
 public class OpenIdActionService : IOpenIdActionService
 {
+    /// <summary>
+    /// Error code returned when the requested client application cannot be found.
+    /// </summary>
     public const string ApplicationNotFoundError = "application_not_found";
     private const string IgnoreChallengeKey = "IgnoreAuthenticationChallenge";
 
@@ -33,7 +39,8 @@ public class OpenIdActionService : IOpenIdActionService
         _applicationAuthorizationService = applicationAuthorizationService;
         _logger = logger;
     }
-
+    
+    /// <inheritdoc />
     public Result<Void, AuthenticationValidationFailure> ValidateOpenIdAuthentication(HttpContext context, AuthenticateResult auth, OpenIddictRequest request)
     {
         if (auth.Succeeded)
@@ -63,6 +70,7 @@ public class OpenIdActionService : IOpenIdActionService
         return Result<Void, AuthenticationValidationFailure>.Failure(AuthenticationValidationFailure.Challenge(properties));
     }
 
+    /// <inheritdoc />
     public async Task<AuthorizationResult> AuthorizeActionAsync(OpenIddictRequest request, ImmutableArray<string> scopes)
     {
         var application = await _applicationManager.FindByClientIdAsync(request.ClientId!);
@@ -107,6 +115,7 @@ public class OpenIdActionService : IOpenIdActionService
         };
     }
 
+    /// <inheritdoc />
     public async Task<ConsentResult> AcceptActionAsync(OpenIddictRequest request, ImmutableArray<string> scopes)
     {
         var application = await _applicationManager.FindByClientIdAsync(request.ClientId!);
@@ -141,6 +150,7 @@ public class OpenIdActionService : IOpenIdActionService
         return ConsentResult.SignIn(principal);
     }
 
+    /// <inheritdoc />
     public async Task<ExchangeResult> ExchangeActionAsync(OpenIddictRequest request, HttpContext context, ImmutableArray<string> scopes)
     {
         if (!request.IsAuthorizationCodeGrantType() && !request.IsRefreshTokenGrantType()) 

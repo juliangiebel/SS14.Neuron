@@ -23,6 +23,15 @@ public class ApplicationAuthorizationService
     }
 
 
+    /// <summary>
+    /// Creates an authorized <see cref="ClaimsPrincipal"/> based on the provided user, application, authorizations, and scopes.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user for which the principal is being created.</param>
+    /// <param name="application">The application object representing the client making the request.</param>
+    /// <param name="authorizations">A list of previously granted authorization objects related to the application and user.</param>
+    /// <param name="scopes">An immutable array of scopes requested by the client application and approved for the user.</param>
+    /// <param name="destinationsSelector">A function that determines the claim destinations for each <see cref="Claim"/>.</param>
+    /// <returns>A task that represents the asynchronous operation and resolves to a <see cref="ClaimsPrincipal"/> containing the user's authorized identity.</returns>
     public async Task<ClaimsPrincipal> CreateAuthorizedPrincipal(
         string userId, object application,
         List<object> authorizations,
