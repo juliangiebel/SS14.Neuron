@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using OpenIddict.Abstractions;
 
-namespace Neuron.OpenId.Helpers;
+namespace Neuron.Core.OpenId.Helpers;
 
 public static class DestinationHelper
 {

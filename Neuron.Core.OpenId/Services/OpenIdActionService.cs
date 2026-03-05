@@ -4,13 +4,16 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Neuron.OpenId.Services.Interfaces;
-using Neuron.OpenId.Types;
+using Neuron.Core.OpenId.Database.model;
+using Neuron.Core.OpenId.Services.Interfaces;
+using Neuron.Core.OpenId.Types;
 using OpenIddict.Abstractions;
+using OpenIddict.Core;
 using OpenIddict.Server.AspNetCore;
-using Void = Neuron.OpenId.Types.Void;
+using static OpenIddict.Abstractions.OpenIddictConstants;
+using Void = Neuron.Core.OpenId.Types.Void;
 
-namespace Neuron.OpenId.Services;
+namespace Neuron.Core.OpenId.Services;
 
 /// <summary>
 /// Encapsulates OpenIddict server-side OpenID Connect/OAuth2 endpoint logic (authorize, consent, exchange).
@@ -21,16 +24,21 @@ public class OpenIdActionService : IOpenIdActionService
     /// Error code returned when the requested client application cannot be found.
     /// </summary>
     public const string ApplicationNotFoundError = "application_not_found";
-    private const string IgnoreChallengeKey = "IgnoreAuthenticationChallenge";
 
     private readonly ISignedInIdentityService _signedInIdentity;
     private readonly IIdentityClaimsProvider _claimsProvider;
     private readonly ApplicationAuthorizationService _applicationAuthorizationService;
     private readonly IOpenIddictAuthorizationManager _authorizationManager;
-    private readonly IOpenIddictApplicationManager _applicationManager;
+    private readonly OpenIddictApplicationManager<IdpApplication> _applicationManager;
     private readonly ILogger<OpenIdActionService> _logger;
 
-    public OpenIdActionService(ISignedInIdentityService signedInIdentity, IIdentityClaimsProvider claimsProvider, IOpenIddictApplicationManager applicationManager, IOpenIddictAuthorizationManager authorizationManager, ApplicationAuthorizationService applicationAuthorizationService, ILogger<OpenIdActionService> logger)
+    public OpenIdActionService(
+        ISignedInIdentityService signedInIdentity, 
+        IIdentityClaimsProvider claimsProvider, 
+        OpenIddictApplicationManager<IdpApplication> applicationManager, 
+        IOpenIddictAuthorizationManager authorizationManager, 
+        ApplicationAuthorizationService applicationAuthorizationService, 
+        ILogger<OpenIdActionService> logger)
     {
         _signedInIdentity = signedInIdentity;
         _claimsProvider = claimsProvider;
@@ -39,62 +47,58 @@ public class OpenIdActionService : IOpenIdActionService
         _applicationAuthorizationService = applicationAuthorizationService;
         _logger = logger;
     }
-    
-    /// <inheritdoc />
-    public Result<Void, AuthenticationValidationFailure> ValidateOpenIdAuthentication(HttpContext context, AuthenticateResult auth, OpenIddictRequest request)
-    {
-        if (auth.Succeeded)
-            return Result<Void, AuthenticationValidationFailure>.Success(Void.Nothing);
-        
-        var ignoreChallenge = context.Session.GetString(IgnoreChallengeKey);
 
+    /// <inheritdoc />
+    public Result<Void, AuthenticationValidationFailure> ValidateOpenIdAuthentication(
+        HttpContext context,
+        bool ignoreChallenge,
+        AuthenticateResult auth,
+        OpenIddictRequest request)
+    {
+        // Auth succeeded and nothing is forcing re-authentication
         if (auth.Succeeded
-            && !request.HasPromptValue(OpenIddictConstants.PromptValues.Login)
+            && !request.HasPromptValue(PromptValues.Login)
             && request.MaxAge is not 0
-            && (request.MaxAge is null || auth.Properties?.IssuedUtc is null || TimeProvider.System.GetUtcNow() - auth.Properties.IssuedUtc < TimeSpan.FromSeconds(request.MaxAge.Value))
-            && ignoreChallenge is null or "false")
+            && (request.MaxAge is null || auth.Properties?.IssuedUtc is null || TimeProvider.System.GetUtcNow() - auth.Properties.IssuedUtc < TimeSpan.FromSeconds(request.MaxAge.Value)))
         {
             return Result<Void, AuthenticationValidationFailure>.Success(Void.Nothing);
         }
 
-        if (request.HasPromptValue(OpenIddictConstants.PromptValues.None))
+        if (ignoreChallenge || request.HasPromptValue(PromptValues.None))
             return Result<Void, AuthenticationValidationFailure>.Failure(AuthenticationValidationFailure.LoginRequired);
-        
-        context.Session.SetString(IgnoreChallengeKey, "true");
+
         var properties = new AuthenticationProperties
         {
             RedirectUri = context.Request.PathBase + context.Request.Path + QueryString.Create(
-                context.Request.HasFormContentType ? context.Request.Form : context.Request.Query)
+                context.Request.HasFormContentType ? context.Request.Form : context.Request.Query),
         };
 
         return Result<Void, AuthenticationValidationFailure>.Failure(AuthenticationValidationFailure.Challenge(properties));
     }
-
+    
     /// <inheritdoc />
     public async Task<AuthorizationResult> AuthorizeActionAsync(OpenIddictRequest request, ImmutableArray<string> scopes)
     {
         var application = await _applicationManager.FindByClientIdAsync(request.ClientId!);
         if (application is null)
-            return AuthorizationResult.Error(string.Empty,  ApplicationNotFoundError);
-        
-        var appName =  await _applicationManager.GetDisplayNameAsync(application);
+            return AuthorizationResult.Error(null,  ApplicationNotFoundError);
         
         if (!await _signedInIdentity.IsAvailableAsync())
         {
             _logger.LogWarning("Signed in user is not available.");
-            return AuthorizationResult.Forbidden(appName ?? string.Empty, OpenIddictConstants.Errors.AccessDenied);
+            return AuthorizationResult.Forbidden(application, Errors.AccessDenied);
         }
         
         var authorizations = new List<object>();
 
         // Ensure the user will be prompted if a prompt was requested later in the switch statement below
-        if (!request.HasPromptValue(OpenIddictConstants.PromptValues.Consent))
+        if (!request.HasPromptValue(PromptValues.Consent))
         {
             authorizations = await _authorizationManager.FindAsync(
                 subject: await _signedInIdentity.GetUserIdAsync(),
                 client: await _applicationManager.GetIdAsync(application),
-                status: OpenIddictConstants.Statuses.Valid,
-                type: OpenIddictConstants.AuthorizationTypes.Permanent,
+                status: Statuses.Valid,
+                type: AuthorizationTypes.Permanent,
                 scopes: scopes
             ).ToListAsync();
         }
@@ -102,16 +106,16 @@ public class OpenIdActionService : IOpenIdActionService
         
         return await _applicationManager.GetConsentTypeAsync(application) switch
         {
-            OpenIddictConstants.ConsentTypes.External when authorizations.Count is 0 => 
-               AuthorizationResult.Forbidden(appName ?? string.Empty,  OpenIddictConstants.Errors.AccessDenied),
+            ConsentTypes.External when authorizations.Count is 0 => 
+               AuthorizationResult.Forbidden(application,  Errors.AccessDenied),
 
-            OpenIddictConstants.ConsentTypes.Implicit or OpenIddictConstants.ConsentTypes.External when authorizations.Count is not 0 =>
+            ConsentTypes.Implicit or ConsentTypes.External when authorizations.Count is not 0 =>
                 await HandleSignIn(request, application, authorizations),
             
-            OpenIddictConstants.ConsentTypes.Explicit or OpenIddictConstants.ConsentTypes.Systematic when request.HasPromptValue(OpenIddictConstants.PromptValues.None) =>
-                AuthorizationResult.Forbidden(appName ?? string.Empty,  OpenIddictConstants.Errors.ConsentRequired),
+            ConsentTypes.Explicit or ConsentTypes.Systematic when request.HasPromptValue(PromptValues.None) =>
+                AuthorizationResult.Forbidden(application,  Errors.ConsentRequired),
             
-            _ => AuthorizationResult.Consent(appName ?? string.Empty, scopes)
+            _ => AuthorizationResult.Consent(application, scopes)
         };
     }
 
@@ -125,20 +129,20 @@ public class OpenIdActionService : IOpenIdActionService
         if (!await _signedInIdentity.IsAvailableAsync())
         {
             _logger.LogWarning("Signed in user is not available.");
-            return ConsentResult.Forbid(OpenIddictConstants.Errors.AccessDenied);
+            return ConsentResult.Forbid(Errors.AccessDenied);
         }
         
         var userId = await _signedInIdentity.GetUserIdAsync();
         var authorizations = await _authorizationManager.FindAsync(
             subject: userId,
             client: await _applicationManager.GetIdAsync(application),
-            status: OpenIddictConstants.Statuses.Valid,
-            type: OpenIddictConstants.AuthorizationTypes.Permanent,
+            status: Statuses.Valid,
+            type: AuthorizationTypes.Permanent,
             scopes: scopes
         ).ToListAsync();
         
-        if (authorizations.Count is 0 && await _applicationManager.HasConsentTypeAsync(application, OpenIddictConstants.ConsentTypes.External))
-            return ConsentResult.Forbid(OpenIddictConstants.Errors.AccessDenied);
+        if (authorizations.Count is 0 && await _applicationManager.HasConsentTypeAsync(application, ConsentTypes.External))
+            return ConsentResult.Forbid(Errors.AccessDenied);
         
         var principal = await _applicationAuthorizationService.CreateAuthorizedPrincipal(
             userId!, 
@@ -154,22 +158,22 @@ public class OpenIdActionService : IOpenIdActionService
     public async Task<ExchangeResult> ExchangeActionAsync(OpenIddictRequest request, HttpContext context, ImmutableArray<string> scopes)
     {
         if (!request.IsAuthorizationCodeGrantType() && !request.IsRefreshTokenGrantType()) 
-            return ExchangeResult.Error(OpenIddictConstants.Errors.UnsupportedGrantType);
+            return ExchangeResult.Error(Errors.UnsupportedGrantType);
         
         var result = await context.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
-        var userId = result.Principal?.GetClaim(OpenIddictConstants.Claims.Subject);
+        var userId = result.Principal?.GetClaim(Claims.Subject);
         
         if (userId is null 
             || !await _signedInIdentity.IsAvailableAsync(userId) 
             || !await _signedInIdentity.CanSignInAsync(userId))
         {
-            return ExchangeResult.Forbid(OpenIddictConstants.Errors.InvalidGrant);
+            return ExchangeResult.Forbid(Errors.InvalidGrant);
         }
             
         var identity = new ClaimsIdentity(
             authenticationType: TokenValidationParameters.DefaultAuthenticationType,
-            nameType: OpenIddictConstants.Claims.Name,
-            roleType: OpenIddictConstants.Claims.Role);
+            nameType: Claims.Name,
+            roleType: Claims.Role);
         
         await _claimsProvider.ProvideClaimsAsync(await _signedInIdentity.GetUserIdAsync(userId) ?? "", scopes, identity);
         identity.SetDestinations(_claimsProvider.GetDestinations);

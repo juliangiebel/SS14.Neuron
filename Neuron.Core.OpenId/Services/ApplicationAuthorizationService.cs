@@ -1,11 +1,11 @@
 ﻿using System.Collections.Immutable;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
-using Neuron.OpenId.Services.Interfaces;
+using Neuron.Core.OpenId.Services.Interfaces;
 using OpenIddict.Abstractions;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
-namespace Neuron.OpenId.Services;
+namespace Neuron.Core.OpenId.Services;
 
 public class ApplicationAuthorizationService
 {

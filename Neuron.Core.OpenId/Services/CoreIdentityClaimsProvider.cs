@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Neuron.Common.Model;
-using Neuron.OpenId.Services.Interfaces;
+using Neuron.Core.OpenId.Services.Interfaces;
 using OpenIddict.Abstractions;
 using Claims = OpenIddict.Abstractions.OpenIddictConstants.Claims;
 

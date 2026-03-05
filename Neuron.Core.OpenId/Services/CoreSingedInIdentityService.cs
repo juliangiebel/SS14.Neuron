@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Neuron.Common.Model;
-using Neuron.OpenId.Services.Interfaces;
+using Neuron.Core.OpenId.Services.Interfaces;
 using OpenIddict.Abstractions;
 
 namespace Neuron.Core.OpenId.Services;

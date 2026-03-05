@@ -1,9 +1,9 @@
 ﻿using System.Collections.Immutable;
 using System.Security.Claims;
-using Neuron.OpenId.Helpers;
+using Neuron.Core.OpenId.Helpers;
 using OpenIddict.Abstractions;
 
-namespace Neuron.OpenId.Services.Interfaces;
+namespace Neuron.Core.OpenId.Services.Interfaces;
 
 public interface IIdentityClaimsProvider
 {

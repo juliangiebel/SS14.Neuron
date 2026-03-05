@@ -1,11 +1,11 @@
 ﻿using System.Collections.Immutable;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using Neuron.OpenId.Types;
+using Neuron.Core.OpenId.Types;
 using OpenIddict.Abstractions;
-using Void = Neuron.OpenId.Types.Void;
+using Void = Neuron.Core.OpenId.Types.Void;
 
-namespace Neuron.OpenId.Services.Interfaces;
+namespace Neuron.Core.OpenId.Services.Interfaces;
 
 public interface IOpenIdActionService
 {
@@ -14,13 +14,14 @@ public interface IOpenIdActionService
     /// the request can continue, must fail silently, or requires an interactive authentication challenge.
     /// </summary>
     /// <param name="context">The current HTTP context.</param>
+    /// <param name="ignoreChallenge">Whether to ignore the challenge. Set when the user was redirected already to prevent redirection loops.</param>
     /// <param name="auth">The authentication result for the current request.</param>
     /// <param name="request">The OpenIddict request (e.g., prompt/max_age).</param>
     /// <returns>
     /// A successful result when authentication is enough. Otherwise, a failure describing either
     /// a login requirement (e.g., <c>prompt=none</c>) or a challenge with redirect properties.
     /// </returns>
-    public Result<Void, AuthenticationValidationFailure> ValidateOpenIdAuthentication(HttpContext context, AuthenticateResult auth, OpenIddictRequest request);
+    public Result<Void, AuthenticationValidationFailure> ValidateOpenIdAuthentication(HttpContext context, bool ignoreChallenge, AuthenticateResult auth, OpenIddictRequest request);
     
     /// <summary>
     /// Processes an authorization request and decides whether to sign in immediately, require user consent,

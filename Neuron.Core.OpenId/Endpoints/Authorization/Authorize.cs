@@ -4,13 +4,11 @@ using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Neuron.Common.Model;
 using Neuron.Core.OpenId.Components;
-using Neuron.OpenId.Services;
-using Neuron.OpenId.Services.Interfaces;
-using Neuron.OpenId.Types;
+using Neuron.Core.OpenId.Services;
+using Neuron.Core.OpenId.Services.Interfaces;
+using Neuron.Core.OpenId.Types;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 using static OpenIddict.Abstractions.OpenIddictConstants;
@@ -29,7 +27,8 @@ public static class Authorize
             return TypedResults.BadRequest("The OpenID Connect request cannot be retrieved.");
 
         var result = await context.AuthenticateAsync();
-        var validation = actionService.ValidateOpenIdAuthentication(context, result, request);
+        var ignoreChallenge = context.Session.GetString("IgnoreAuthenticationChallenge") ==  "true";
+        var validation = actionService.ValidateOpenIdAuthentication(context, ignoreChallenge, result, request);
         
         switch (validation.IsSuccess)
         {
@@ -52,7 +51,7 @@ public static class Authorize
             AuthorizationResult.ResultType.SignIn =>
                 TypedResults.SignIn(authorization.Principal!, authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme),
             
-            _ => new RazorComponentResult<ConsentPage>(new Model(authorization.AppName, authorization.Scopes, antiforgery.GetAndStoreTokens(context)))
+            _ => new RazorComponentResult<ConsentPage>(new Model(authorization.Application?.DisplayName, authorization.Scopes, antiforgery.GetAndStoreTokens(context)))
         };
 
     }

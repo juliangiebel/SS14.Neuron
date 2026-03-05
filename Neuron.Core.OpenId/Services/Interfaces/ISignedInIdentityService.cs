@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-
-namespace Neuron.OpenId.Services.Interfaces;
+﻿namespace Neuron.Core.OpenId.Services.Interfaces;
 
 public interface ISignedInIdentityService
 {

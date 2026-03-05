@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Neuron.OpenId.Services;
-using Neuron.OpenId.Services.Interfaces;
-using Neuron.OpenId.Types;
+using Neuron.Core.OpenId.Services.Interfaces;
+using Neuron.Core.OpenId.Types;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 

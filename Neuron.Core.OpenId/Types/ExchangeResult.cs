@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace Neuron.OpenId.Types;
+namespace Neuron.Core.OpenId.Types;
 
 public record ExchangeResult(ExchangeResult.ResultType Type, string? ErrorName, ClaimsPrincipal? Principal)
 {

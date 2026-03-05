@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace Neuron.OpenId.Types;
+namespace Neuron.Core.OpenId.Types;
 
 public record ConsentResult(ConsentResult.ResultType Type, string? ErrorName, ClaimsPrincipal? Principal)
 {

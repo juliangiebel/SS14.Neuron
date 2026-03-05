@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 
-namespace Neuron.OpenId.Types;
+namespace Neuron.Core.OpenId.Types;
 
 public record Result<TResult, TError>(TResult? Value, TError? Error) where TResult : class where TError : class
 {

@@ -1,20 +1,15 @@
-﻿using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Schema;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Neuron.Core.OpenId.Configuration;
 using Neuron.Core.OpenId.Database;
+using Neuron.Core.OpenId.Database.model;
 using Neuron.Core.OpenId.Endpoints;
 using Neuron.Core.OpenId.Services;
-using Neuron.OpenId;
-using Neuron.OpenId.Services.Interfaces;
-using OpenIddict.Abstractions;
-using OpenIddict.Client;
-using OpenIddict.Server;
+using Neuron.Core.OpenId.Services.Interfaces;
+using static Neuron.Core.OpenId.Database.model.OpenIddictDefaultTypes;
 
 namespace Neuron.Core.OpenId;
 
@@ -29,7 +24,11 @@ public static class CoreOpenIdExtension
         });
 
         var openId = builder.Services.AddOpenIddict();
-        openId.AddCore(options => options.UseEntityFrameworkCore().UseDbContext<OpenIdDbContext>());
+        openId.AddCore(options =>
+        {
+            options.UseEntityFrameworkCore().UseDbContext<OpenIdDbContext>()
+                .ReplaceDefaultEntities<IdpApplication, DefaultAuthorization, DefaultScope,  DefaultToken, Guid>();
+        });
         
         openId.AddValidation().UseLocalServer();
         openId.AddValidation().UseAspNetCore();
@@ -39,10 +38,10 @@ public static class CoreOpenIdExtension
         ConfigureCertificates(openId, builder);
         
         builder.Services.AddHostedService<TestDataSeeder>();
-        
-        builder.AddNeuronOpenId();
         builder.Services.AddScoped<ISignedInIdentityService, CoreSingedInIdentityService>();
         builder.Services.AddScoped<IIdentityClaimsProvider, CoreIdentityClaimsProvider>();
+        builder.Services.AddScoped<IOpenIdActionService, OpenIdActionService>();
+        builder.Services.AddScoped<ApplicationAuthorizationService>();
     }
 
     private static void ConfigureCertificates(OpenIddictBuilder openId, WebApplicationBuilder builder)

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using OpenIddict.Abstractions;
 
-namespace Neuron.OpenId.Types;
+namespace Neuron.Core.OpenId.Types;
 
 public record AuthenticationValidationFailure(
     string? Error = null,
