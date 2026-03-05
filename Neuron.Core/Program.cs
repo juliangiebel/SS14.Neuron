@@ -66,4 +66,6 @@ app.UseNeuronCoreOpenId();
 app.MapGet("/", () => new RazorComponentResult<Home>());
 app.MapGet("/test", () => new RazorComponentResult<TestComponent>());
 
+app.UseModuleLoader();
+
 app.Run();

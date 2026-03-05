@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.Composition.Hosting;
-using System.Reflection;
-using Neuron.Common;
+﻿using Microsoft.AspNetCore.Routing;
 
 namespace Neuron.Core.ModuleLoader;
 
@@ -9,17 +7,17 @@ public static class ModuleLoaderExtension
     public static void AddNeuronCoreModuleLoader(this WebApplicationBuilder builder)
     {
         builder.Services.Configure<ModuleLoaderConfiguration>(builder.Configuration.GetSection("ModuleLoader"));
-        var configuration = new ModuleLoaderConfiguration();
-        builder.Configuration.Bind("ModuleLoader", configuration);
-
-        var basePath = Path.GetFullPath(configuration.ModuleDirectoryPath, Directory.GetCurrentDirectory());
-        var assemblies = configuration.Modules
-            .Select(x => Path.Combine(basePath, x))
-            .Select(Assembly.LoadFrom)
-            .Select(x => new AssemblyCatalog(x));
-
-        var catalog = new AggregateCatalog(assemblies);
-        
+        builder.Services.AddSingleton<ModuleManager>();
+        builder.Services.AddSingleton<ModuleRegistry>();
+        builder.Services.AddSingleton<ModuleEndpointDataSource>();
     }   
+    
+    public static void UseModuleLoader(this WebApplication app)
+    {
+        var source = app.Services.GetRequiredService<ModuleEndpointDataSource>();
+        ((IEndpointRouteBuilder) app).DataSources.Add(source);
+        app.Services.GetRequiredService<ModuleManager>().LoadConfiguredModules();
+        
+    }
     
 }
