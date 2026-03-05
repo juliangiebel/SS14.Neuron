@@ -4,3 +4,7 @@ Logging:
     Microsoft.AspNetCore: Warning
 
 
+ModuleLoader:
+  ModuleDirectoryPath: "../modules"
+  Modules:
+    - "Neuron.Modules.TestModule/bin/Debug/net10.0/Neuron.Modules.TestModule.dll"

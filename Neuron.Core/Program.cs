@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Neuron.Common.Components;
 using Neuron.Core.Components;
 using Neuron.Core.Identity;
+using Neuron.Core.ModuleLoader;
 using Neuron.Core.OpenId;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +27,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddRazorComponents();
 builder.AddNeuronCoreIdentity();
 builder.AddNeuronCoreOpenId();
+builder.AddNeuronCoreModuleLoader();
 
 var app = builder.Build();
 
@@ -34,11 +36,6 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
 
 
 //app.UseCors();
