@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Builder;
+using System.Runtime.Versioning;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Neuron.Core.OpenId.Configuration;
 using Neuron.Core.OpenId.Database;
 using Neuron.Core.OpenId.Database.model;
@@ -46,11 +46,11 @@ public static class CoreOpenIdExtension
 
     private static void ConfigureCertificates(OpenIddictBuilder openId, WebApplicationBuilder builder)
     {
-        if (builder.Environment.IsDevelopment())
+        /*if (builder.Environment.IsDevelopment())
         {
             openId.AddServer().AddDevelopmentEncryptionCertificate().AddDevelopmentSigningCertificate();
             return;
-        }
+        }*/
 
         var config = builder.Configuration
             .GetSection("OpenId")
@@ -66,6 +66,7 @@ public static class CoreOpenIdExtension
         openId.AddServer().AddSigningCertificate(signingCert, config.SigningCertificatePassword);
     }
 
+    [UnsupportedOSPlatform("browser")]
     public static void UseNeuronCoreOpenId(this WebApplication app)
     {
         app.MapNeuronCoreOpenIdEndpoints();

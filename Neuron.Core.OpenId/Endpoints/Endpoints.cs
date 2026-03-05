@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Runtime.Versioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
@@ -6,6 +7,7 @@ namespace Neuron.Core.OpenId.Endpoints;
 
 public static class Endpoints
 {
+    [UnsupportedOSPlatform("browser")]
     public static void MapNeuronCoreOpenIdEndpoints(this WebApplication app)
     {
         var authorize = app.MapGroup("/connect/authorize")
@@ -29,6 +31,9 @@ public static class Endpoints
 
         app.MapPost("/debug/token", Debug.TestToken.Post)
             .DisableAntiforgery();
+        
+        app.MapGet("/debug/cert/encryption", Debug.GenerateCerts.GetEncryptionCert);
+        app.MapGet("/debug/cert/signing", Debug.GenerateCerts.GetSigningCert);
     }
 
 }

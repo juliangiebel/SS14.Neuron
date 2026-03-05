@@ -3,6 +3,10 @@ Logging:
     Default: Information
     Microsoft.AspNetCore: Warning
 
+OpenId:
+  Certificates:
+    EncryptionCertificatePath: ../server-encryption-certificate.pfx
+    SigningCertificatePath: ../server-signing-certificate.pfx
 
 ModuleLoader:
   ModuleDirectoryPath: "../modules"

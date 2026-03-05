@@ -37,7 +37,6 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-
 //app.UseCors();
 //app.UseForwardedHeaders();
 app.UseSecurityHeaders(policies =>
