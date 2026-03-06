@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Neuron.Common.Components;
 using Neuron.Core.Components;
+using Neuron.Core.ConfigurationStore;
 using Neuron.Core.Identity;
 using Neuron.Core.ModuleLoader;
 using Neuron.Core.OpenId;
@@ -28,6 +29,7 @@ builder.Services.AddRazorComponents();
 builder.AddNeuronCoreIdentity();
 builder.AddNeuronCoreOpenId();
 builder.AddNeuronCoreModuleLoader();
+builder.AddConfigurationStore();
 
 var app = builder.Build();
 
