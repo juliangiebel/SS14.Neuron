@@ -1,4 +1,4 @@
-﻿namespace Neuron.Common.Services;
+﻿namespace Neuron.Common.Interfaces;
 
 /// <summary>
 /// This collects personal data for gdpr exports

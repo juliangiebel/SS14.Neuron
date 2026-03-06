@@ -1,14 +1,18 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Neuron.Common;
-using Neuron.Common.Types;
+﻿using JetBrains.Annotations;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Routing;
+using Neuron.Common.Interfaces;
 
 namespace Neuron.Modules.TestModule;
 
+[PublicAPI]
 public class TestModule : IModule
 {
     public string Name => "TestModule";
-    public void Register(IModuleRegistryHandle registryHandle)
+
+    public void RegisterEndpoints(IEndpointRouteBuilder endpoints)
     {
-        registryHandle.RegisterRoute(this, "test", new TestRoute());
+        endpoints.MapGet("/test", () => new RazorComponentResult<Component1>());
     }
 }
