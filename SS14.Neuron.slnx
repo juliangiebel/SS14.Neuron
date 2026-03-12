@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/Modules/">
+    <Project Path="modules/Neuron.Modules.TestModule/Neuron.Modules.TestModule.csproj" />
+  </Folder>
+  <Project Path="Neuron.Common.Components/Neuron.Common.Components.csproj" />
+  <Project Path="Neuron.Common/Neuron.Common.csproj" />
+  <Project Path="Neuron.Core.ConfigurationStore/Neuron.Core.ConfigurationStore.csproj" />
+  <Project Path="Neuron.Core.Identity/Neuron.Core.Identity.csproj" />
+  <Project Path="Neuron.Core.OpenId/Neuron.Core.OpenId.csproj" />
+  <Project Path="Neuron.Core/Neuron.Core.csproj" />
+</Solution>
